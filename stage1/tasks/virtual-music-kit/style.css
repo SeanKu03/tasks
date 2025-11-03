@@ -1,0 +1,694 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-container {
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.app-container.playback-active {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.app-container.playback-active .piano-key {
+    pointer-events: none;
+}
+
+.piano-title {
+    color: white;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.piano-container {
+    background: #2c3e50;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.keys-container {
+    position: relative;
+    display: flex;
+    height: 200px;
+    margin: 0 auto;
+    max-width: 800px;
+}
+
+.piano-key {
+    position: relative;
+    border-radius: 0 0 8px 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    transform: translateY(0);
+}
+
+/* ===== WHITE KEYS - ENHANCED STATES ===== */
+.white-key {
+    background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
+    border: 2px solid #b8b8b8;
+    border-top: 1px solid #e0e0e0;
+    width: 60px;
+    height: 100%;
+    margin: 0 1px;
+    z-index: 1;
+    box-shadow: 
+        0 2px 4px rgba(0,0,0,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* White Key - Hover State */
+.white-key:hover {
+    background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+    border-color: #a0a0a0;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 6px 12px rgba(0,0,0,0.15),
+        0 0 0 2px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+/* White Key - Active/Pressed State */
+.white-key.key-pressed {
+    background: linear-gradient(145deg, #e9ecef 0%, #dee2e6 100%) !important;
+    border-color: #8a8a8a;
+    transform: translateY(4px) scale(0.98);
+    box-shadow: 
+        inset 0 4px 8px rgba(0,0,0,0.15),
+        0 1px 2px rgba(0,0,0,0.1);
+    transition: all 0.1s ease;
+}
+
+/* ===== BLACK KEYS - ENHANCED STATES ===== */
+.black-key {
+    background: linear-gradient(145deg, #2d2d2d 0%, #1a1a1a 100%);
+    width: 40px;
+    height: 60%;
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    transform: translateX(-50%);
+    box-shadow: 
+        0 4px 8px rgba(0,0,0,0.3),
+        inset 0 -1px 0 rgba(255,255,255,0.1);
+    border: 1px solid #000;
+}
+
+/* Black Key - Hover State */
+.black-key:hover {
+    background: linear-gradient(145deg, #3d3d3d 0%, #2a2a2a 100%);
+    transform: translateX(-50%) translateY(-2px) scale(1.05);
+    box-shadow: 
+        0 6px 16px rgba(0,0,0,0.4),
+        0 0 0 2px rgba(255, 215, 0, 0.4),
+        inset 0 -1px 0 rgba(255,255,255,0.2);
+}
+
+/* Black Key - Active/Pressed State */
+.black-key.key-pressed {
+    background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%) !important;
+    transform: translateX(-50%) translateY(3px) scale(0.95);
+    box-shadow: 
+        inset 0 4px 12px rgba(0,0,0,0.5),
+        0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.1s ease;
+}
+
+.black-key[data-note="C#"] { left: 45px; }
+.black-key[data-note="D#"] { left: 105px; }
+.black-key[data-note="F#"] { left: 225px; }
+.black-key[data-note="G#"] { left: 285px; }
+.black-key[data-note="A#"] { left: 345px; }
+
+.note-label {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+}
+
+.white-key .note-label {
+    color: #333;
+}
+
+.black-key .note-label {
+    color: white;
+}
+
+.keyboard-label {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.white-key .keyboard-label {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.black-key .keyboard-label {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+}
+
+.white-key .note-label {
+    bottom: 30px;
+}
+
+.black-key .note-label {
+    bottom: 25px;
+}
+
+/* ===== EDIT BUTTON STATES ===== */
+.edit-button {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(102, 126, 234, 0.9);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    width: 24px;
+    height: 20px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+}
+
+/* Edit Button - Hover State */
+.edit-button:hover {
+    background: #5a6fd8;
+    transform: translateX(-50%) translateY(-2px) scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Edit Button - Active State */
+.edit-button:active {
+    background: #4a5fc8;
+    transform: translateX(-50%) translateY(0) scale(0.95);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: all 0.1s ease;
+}
+
+/* Show edit button on piano key hover */
+.piano-key:hover .edit-button {
+    opacity: 1;
+}
+
+/* ===== ENHANCED EDITING STATE ===== */
+.key-editing {
+    box-shadow: 
+        0 0 0 3px #ffeb3b,
+        0 0 20px rgba(255, 235, 59, 0.4) !important;
+    z-index: 10;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px #ffeb3b, 0 0 20px rgba(255, 235, 59, 0.4); }
+    50% { box-shadow: 0 0 0 3px #ffeb3b, 0 0 30px rgba(255, 235, 59, 0.6); }
+}
+
+.white-key.key-editing {
+    background: linear-gradient(145deg, #fff8e1 0%, #ffecb3 100%) !important;
+}
+
+.black-key.key-editing {
+    background: linear-gradient(145deg, #5d4037 0%, #3e2723 100%) !important;
+}
+
+.instructions {
+    color: white;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.instructions p {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.feature-info {
+    font-size: 0.8rem !important;
+    opacity: 0.7;
+    margin-top: 15px !important;
+    font-style: italic;
+}
+
+.keyboard-keys {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* ===== KEYBOARD KEYS IN INSTRUCTIONS - ENHANCED STATES ===== */
+.keyboard-keys span {
+    background: linear-gradient(145deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 100%);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    min-width: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Keyboard Key - Hover State */
+.keyboard-keys span:hover {
+    background: linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.25) 100%);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Keyboard Key - Active State */
+.keyboard-keys span:active {
+    background: linear-gradient(145deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+    transform: translateY(1px) scale(0.95);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    transition: all 0.1s ease;
+}
+
+.edit-instruction {
+    font-size: 0.9rem;
+    margin-top: 8px;
+    opacity: 0.8;
+}
+
+/* ===== SEQUENCE INPUT STYLES ===== */
+.sequence-input-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 500px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 2px solid #4CAF50;
+}
+
+.sequence-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.sequence-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sequence-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.sequence-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    transform: translateY(-1px);
+}
+
+.sequence-input.has-content {
+    border-color: #4CAF50;
+    background: #f8fff8;
+}
+
+.sequence-input.disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ccc;
+    opacity: 0.7;
+}
+
+.char-count {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #666;
+    min-width: 60px;
+    text-align: center;
+    padding: 4px 8px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+/* ===== PLAY BUTTON STYLES ===== */
+.play-button {
+    width: 100%;
+    padding: 12px 24px;
+    margin-top: 15px;
+    background: linear-gradient(145deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.play-button:hover:not(:disabled) {
+    background: linear-gradient(145deg, #45a049, #4CAF50);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.play-button:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.play-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+.play-button.disabled {
+    pointer-events: none;
+}
+
+.sequence-instruction {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 10px;
+    line-height: 1.4;
+}
+
+.sequence-error {
+    animation: shake 0.5s ease-in-out;
+    background: #ffebee;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border-left: 4px solid #f44336;
+}
+
+/* ===== EDIT INPUT STYLES ===== */
+.edit-input-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 2px solid #667eea;
+}
+
+.edit-label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.edit-note-display {
+    font-weight: bold;
+    color: #667eea;
+    margin-right: 10px;
+}
+
+.edit-key-input {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: 60px;
+    text-align: center;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+/* Edit Input - Focus/Hover State */
+.edit-key-input:focus,
+.edit-key-input:hover {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Edit Input - Active State (when typing) */
+.edit-key-input:active {
+    transform: translateY(0);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.edit-input-container .edit-instruction {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 8px;
+}
+
+.edit-error {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.edit-success {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1439px) and (min-width: 768px) {
+    .piano-title {
+        font-size: 2rem;
+    }
+    .piano-container {
+        padding: 15px;
+    }
+    .keys-container {
+        height: 180px;
+        max-width: 700px;
+    }
+    .white-key { width: 50px; }
+    .black-key { width: 35px; }
+    .keyboard-label {
+        font-size: 0.8rem;
+        top: 8px;
+        padding: 1px 4px;
+    }
+    .white-key .note-label {
+        bottom: 25px;
+    }
+    .black-key .note-label {
+        bottom: 20px;
+    }
+    .instructions p {
+        font-size: 1rem;
+    }
+    .keyboard-keys span {
+        padding: 6px 10px;
+        min-width: 35px;
+    }
+    .sequence-input-container {
+        padding: 15px;
+        max-width: 450px;
+    }
+    .sequence-input {
+        padding: 10px 14px;
+        font-size: 1rem;
+    }
+    .play-button {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+    
+    /* Responsive hover adjustments */
+    .white-key:hover {
+        transform: translateY(-2px) scale(1.01);
+    }
+    
+    .black-key:hover {
+        transform: translateX(-50%) translateY(-1px) scale(1.03);
+    }
+    
+    .keyboard-keys span:hover {
+        transform: translateY(-1px) scale(1.03);
+    }
+    
+    .play-button:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+}
+
+@media (max-width: 767px) and (min-width: 360px) {
+    .piano-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    .piano-container {
+        padding: 10px;
+        margin: 0 10px;
+    }
+    .keys-container {
+        height: 150px;
+        max-width: 100%;
+    }
+    .white-key { 
+        width: 40px; 
+        font-size: 0.8rem;
+    }
+    .black-key { 
+        width: 30px; 
+        font-size: 0.7rem;
+    }
+    .note-label {
+        bottom: 5px;
+    }
+    .keyboard-label {
+        font-size: 0.7rem;
+        top: 5px;
+        padding: 1px 3px;
+        min-width: 16px;
+    }
+    .white-key .note-label {
+        bottom: 20px;
+        font-size: 0.7rem;
+    }
+    .black-key .note-label {
+        bottom: 16px;
+        font-size: 0.6rem;
+    }
+    .instructions p {
+        font-size: 0.9rem;
+    }
+    .feature-info {
+        font-size: 0.7rem !important;
+    }
+    .keyboard-keys {
+        gap: 5px;
+    }
+    .keyboard-keys span {
+        padding: 4px 8px;
+        min-width: 30px;
+        font-size: 0.8rem;
+    }
+    .sequence-input-container {
+        padding: 12px;
+        margin: 15px 10px;
+    }
+    .sequence-label {
+        font-size: 1rem;
+    }
+    .sequence-input-wrapper {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .sequence-input {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    .char-count {
+        align-self: flex-end;
+        font-size: 0.8rem;
+    }
+    .sequence-instruction {
+        font-size: 0.8rem;
+    }
+    .play-button {
+        padding: 10px 16px;
+        font-size: 1rem;
+        margin-top: 12px;
+    }
+    .edit-input-container {
+        padding: 10px;
+        margin: 15px 10px;
+    }
+    .edit-key-input {
+        width: 50px;
+        padding: 6px 10px;
+    }
+    .edit-button {
+        width: 18px;
+        height: 16px;
+        font-size: 0.6rem;
+        bottom: 3px;
+    }
+    
+    /* Mobile hover adjustments */
+    .white-key:hover {
+        transform: translateY(-1px) scale(1.01);
+    }
+    
+    .black-key:hover {
+        transform: translateX(-50%) translateY(-1px) scale(1.02);
+    }
+    
+    .keyboard-keys span:hover {
+        transform: translateY(-1px) scale(1.02);
+    }
+    
+    .edit-key-input:focus,
+    .edit-key-input:hover,
+    .sequence-input:focus {
+        transform: translateY(0);
+    }
+    
+    .play-button:hover:not(:disabled) {
+        transform: translateY(0);
+    }
+}
