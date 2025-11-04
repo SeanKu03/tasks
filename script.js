@@ -32,9 +32,75 @@ class VirtualPiano {
         const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
         
         notes.forEach(note => {
-            this.sounds[note] = new Audio(`sounds/${note.toLowerCase()}4.mp3`);
+            // Create audio elements for each note
+            this.sounds[note] = new Audio();
+            
+            // Try to load from the expected path first
+            this.sounds[note].src = `sounds/${note.toLowerCase()}4.mp3`;
+            
+            // Add error handling for missing sound files
+            this.sounds[note].addEventListener('error', () => {
+                console.warn(`Could not load sound for note ${note} from sounds/${note.toLowerCase()}4.mp3`);
+                
+                // Fallback: Try to use oscillator as a backup sound
+                console.log(`Creating fallback sound for note ${note}`);
+            });
+            
             this.sounds[note].load();
         });
+    }
+
+    playNote(note) {
+        if (!this.sounds[note]) {
+            console.warn(`No sound available for note: ${note}`);
+            return;
+        }
+
+        try {
+            // Stop and reset the sound if it's already playing
+            this.sounds[note].pause();
+            this.sounds[note].currentTime = 0;
+            
+            // Play the sound
+            this.sounds[note].play().catch(error => {
+                console.warn(`Could not play sound for note ${note}:`, error);
+                // Fallback to oscillator if audio file fails
+                this.playFallbackSound(note);
+            });
+        } catch (error) {
+            console.warn(`Error playing note ${note}:`, error);
+            this.playFallbackSound(note);
+        }
+    }
+
+    playFallbackSound(note) {
+        // Create a simple oscillator as fallback
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            // Map notes to frequencies (C4 to B4)
+            const frequencies = {
+                'C': 261.63, 'D': 293.66, 'E': 329.63, 
+                'F': 349.23, 'G': 392.00, 'A': 440.00, 'B': 493.88
+            };
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequencies[note] || 440;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+            
+        } catch (error) {
+            console.warn('Could not create fallback sound:', error);
+        }
     }
 
     setupKeyboardListeners() {
@@ -99,6 +165,8 @@ class VirtualPiano {
         if (keyElement) {
             this.activeKey = note;
             this.pressKey(keyElement);
+            // Play the sound when key is pressed
+            this.playNote(note);
         }
     }
 
@@ -309,30 +377,13 @@ class VirtualPiano {
             this.pressKey(keyElement);
             
             // Play the sound
-            if (this.sounds[note]) {
-                this.sounds[note].currentTime = 0;
-                this.sounds[note].play().catch(error => {
-                    console.warn(`Could not play sound for note ${note}:`, error);
-                });
-                
-                // Wait for sound to end or timeout after 2 seconds
-                const soundEnded = () => {
-                    this.releaseKey(keyElement);
-                    this.sounds[note].removeEventListener('ended', soundEnded);
-                    resolve();
-                };
-                
-                this.sounds[note].addEventListener('ended', soundEnded);
-                
-                // Safety timeout in case 'ended' event doesn't fire
-                setTimeout(soundEnded, 2000);
-            } else {
-                // If no sound, just wait a bit then release
-                setTimeout(() => {
-                    this.releaseKey(keyElement);
-                    resolve();
-                }, 500);
-            }
+            this.playNote(note);
+            
+            // Wait for the specified delay then release and resolve
+            setTimeout(() => {
+                this.releaseKey(keyElement);
+                resolve();
+            }, this.playbackDelay - 100); // Slightly shorter than the delay between notes
         });
     }
 
@@ -514,10 +565,15 @@ class VirtualPiano {
     }
 
     addKeyInteractions(key) {
+        // Mouse interactions
         key.addEventListener('mousedown', (e) => {
             e.preventDefault();
-            if (!this.activeKey && !this.isPlayingSequence) {
+            if (!this.activeKey && !this.isPlayingSequence && key.dataset.note) {
+                const note = key.dataset.note;
+                this.activeKey = note;
                 this.pressKey(key);
+                // Play the sound on mouse down
+                this.playNote(note);
             }
         });
         
@@ -535,10 +591,15 @@ class VirtualPiano {
             }
         });
         
+        // Touch interactions
         key.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            if (!this.activeKey && !this.isPlayingSequence) {
+            if (!this.activeKey && !this.isPlayingSequence && key.dataset.note) {
+                const note = key.dataset.note;
+                this.activeKey = note;
                 this.pressKey(key);
+                // Play the sound on touch start
+                this.playNote(note);
             }
         });
         
@@ -546,6 +607,20 @@ class VirtualPiano {
             if (this.activeKey === key.dataset.note && !this.isPlayingSequence) {
                 this.releaseKey(key);
                 this.activeKey = null;
+            }
+        });
+        
+        // Click interaction as fallback
+        key.addEventListener('click', (e) => {
+            if (!this.activeKey && !this.isPlayingSequence && key.dataset.note) {
+                const note = key.dataset.note;
+                // For click, we want a quick press and release
+                this.pressKey(key);
+                this.playNote(note);
+                
+                setTimeout(() => {
+                    this.releaseKey(key);
+                }, 200);
             }
         });
     }
